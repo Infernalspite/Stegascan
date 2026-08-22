@@ -1,0 +1,407 @@
+/* ============================================================
+   StegaScan Phase 5 — visual system
+   Concept: a physical case file / evidence board for a weight-file
+   forensics unit. Manila-folder paper, typewriter headings, ink-stamp
+   verdicts, and evidence tags with a punched hole — every finding is
+   treated like a tagged piece of physical evidence, not a dashboard
+   metric. All type is system-stack (no webfonts) so the tool keeps
+   working fully offline, in step with the project's own "no GPU,
+   fully offline" claim.
+   ============================================================ */
+
+:root{
+  --paper:        #ddd2af;
+  --paper-dark:   #cdc09b;
+  --paper-shadow: #b7a97f;
+  --ink:          #241f16;
+  --ink-soft:     #57503f;
+  --rule:         #a99a76;
+  --card:         #eee5c9;
+  --card-line:    #cbbd93;
+
+  --band-low:      #2f6b5e;
+  --band-low-bg:   #e2ead9;
+  --band-elevated: #a2711f;
+  --band-elevated-bg:#f1e0bd;
+  --band-high:     #9c2b23;
+  --band-high-bg:  #f3d9cf;
+
+  --font-head: ui-monospace, "Courier New", Courier, monospace;
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+
+  --radius: 3px;
+}
+
+*{ box-sizing: border-box; }
+
+body{
+  margin:0;
+  color: var(--ink);
+  font-family: var(--font-body);
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(circle at 1px 1px, var(--paper-shadow) 1px, transparent 0);
+  background-size: 22px 22px;
+  min-height: 100vh;
+}
+
+.corkboard{
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 28px 24px 60px;
+}
+
+/* ---------------- Masthead ---------------- */
+.masthead{
+  display:flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 3px double var(--ink);
+  padding-bottom: 14px;
+  margin-bottom: 26px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.badge-number{
+  display:inline-block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+  border: 1px solid var(--ink-soft);
+  padding: 1px 7px;
+  border-radius: 999px;
+  margin-bottom: 6px;
+}
+.masthead h1{
+  font-family: var(--font-head);
+  font-size: 34px;
+  letter-spacing: 0.02em;
+  margin: 2px 0 4px;
+}
+.subtitle{
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 14px;
+}
+.folder-tab{
+  display:inline-block;
+  background: var(--card);
+  border: 1px solid var(--ink);
+  border-bottom: none;
+  padding: 8px 16px 10px;
+  border-radius: 6px 6px 0 0;
+  font-family: var(--font-head);
+  font-size: 13px;
+  text-decoration: none;
+  color: var(--ink);
+  transform: translateY(1px);
+}
+.folder-tab:hover{ background: var(--paper-dark); }
+
+/* ---------------- Flash messages ---------------- */
+.flash-stack{ margin-bottom: 20px; }
+.flash{
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  border-left: 4px solid var(--band-high);
+  background: var(--band-high-bg);
+  color: var(--ink);
+}
+
+/* ---------------- Section headers ---------------- */
+.section-label{
+  font-family: var(--font-head);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 30px 0 12px;
+  display:flex;
+  align-items:center;
+  gap: 10px;
+}
+.section-label::after{
+  content:"";
+  flex:1;
+  border-top: 1px dashed var(--rule);
+}
+
+/* ---------------- Model picker grid (index page) ---------------- */
+.model-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 16px;
+}
+.model-card{
+  background: var(--card);
+  border: 1px solid var(--card-line);
+  border-radius: var(--radius);
+  padding: 16px 16px 14px;
+  text-decoration:none;
+  color: var(--ink);
+  position: relative;
+  box-shadow: 2px 3px 0 rgba(36,31,22,0.12);
+  transition: transform .12s ease, box-shadow .12s ease;
+  display:flex;
+  flex-direction:column;
+  gap: 6px;
+}
+.model-card:hover{
+  transform: translate(-2px,-2px);
+  box-shadow: 4px 5px 0 rgba(36,31,22,0.18);
+}
+.model-card .tag-hole{
+  position:absolute; top:12px; right:12px;
+  width:10px; height:10px; border-radius:50%;
+  background: var(--paper);
+  border: 1px solid var(--card-line);
+  box-shadow: inset 0 0 0 2px var(--card);
+}
+.model-card .fname{
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-soft);
+  word-break: break-all;
+}
+.model-card .label{
+  font-family: var(--font-head);
+  font-size: 16px;
+  margin: 2px 0 0;
+}
+.model-card .desc{
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height:1.4;
+  margin:0;
+}
+.model-card .meta{
+  margin-top:auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-soft);
+  padding-top: 8px;
+  border-top: 1px dashed var(--card-line);
+}
+.model-card .scan-cta{
+  margin-top: 4px;
+  font-family: var(--font-head);
+  font-size: 12px;
+  letter-spacing: .05em;
+}
+
+/* ---------------- Upload panel ---------------- */
+.upload-panel{
+  background: var(--card);
+  border: 1px dashed var(--ink-soft);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  display:flex;
+  align-items:center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.upload-panel p{ margin:0; font-size:13px; color: var(--ink-soft); flex: 1 1 260px; }
+input[type="file"]{
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+button, .btn{
+  font-family: var(--font-head);
+  font-size: 13px;
+  letter-spacing: .04em;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  box-shadow: 2px 2px 0 rgba(36,31,22,0.35);
+}
+button:hover, .btn:hover{ background: #38311f; }
+
+/* ---------------- Report page ---------------- */
+.report-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.report-head h2{
+  font-family: var(--font-head);
+  font-size: 22px;
+  margin: 0 0 4px;
+}
+.report-head .fname{
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+.report-meta{
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-soft);
+  display:flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.report-meta span{ margin-right: 14px; display:inline-block; }
+
+/* Ink stamp verdict */
+.stamp{
+  font-family: var(--font-head);
+  font-weight: bold;
+  font-size: 26px;
+  letter-spacing: 0.1em;
+  padding: 10px 22px;
+  border: 4px double currentColor;
+  border-radius: 6px;
+  transform: rotate(-4deg);
+  display:inline-flex;
+  flex-direction: column;
+  align-items:center;
+  line-height: 1.05;
+  text-transform: uppercase;
+  opacity: 0.92;
+}
+.stamp .score-line{
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  margin-top: 3px;
+}
+.stamp.band-LOW{ color: var(--band-low); }
+.stamp.band-ELEVATED{ color: var(--band-elevated); }
+.stamp.band-HIGH{ color: var(--band-high); }
+
+/* Evidence tags */
+.tag-row{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+  margin-top: 8px;
+}
+.evidence-tag{
+  background: var(--card);
+  border-radius: var(--radius);
+  position: relative;
+  padding: 16px 18px 16px 30px;
+  border: 1px solid var(--card-line);
+  box-shadow: 2px 3px 0 rgba(36,31,22,0.10);
+}
+.evidence-tag::before{
+  /* string + punched hole, evoking a physical tag */
+  content:"";
+  position:absolute;
+  left:14px; top:14px;
+  width: 10px; height: 10px;
+  border-radius:50%;
+  background: var(--paper);
+  border: 2px solid var(--ink-soft);
+}
+.evidence-tag .tag-title{
+  font-family: var(--font-head);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  margin-bottom: 8px;
+}
+.pill{
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+}
+.pill.flagged{ color: var(--band-high); background: var(--band-high-bg); }
+.pill.clear{ color: var(--band-low); background: var(--band-low-bg); }
+.pill.low-confidence{ color: var(--band-elevated); background: var(--band-elevated-bg); }
+
+.evidence-tag ul{ margin: 6px 0 0; padding-left: 18px; font-size: 13.5px; line-height:1.55; }
+.evidence-tag li{ margin-bottom: 4px; }
+
+.recovered{
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  background: var(--ink);
+  color: #e9dfba;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  margin-top: 10px;
+  overflow-x:auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.recovered .cursor{ opacity:.6; }
+
+table.grid-table{
+  width:100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  margin-top: 10px;
+}
+table.grid-table th, table.grid-table td{
+  text-align:left;
+  padding: 5px 8px;
+  border-bottom: 1px dashed var(--card-line);
+}
+table.grid-table th{ color: var(--ink-soft); font-weight: 600; }
+
+.limits-box{
+  font-size: 13px;
+  line-height: 1.6;
+  background: var(--card);
+  border-left: 4px solid var(--band-elevated);
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  color: var(--ink-soft);
+}
+.limits-box strong{ color: var(--ink); }
+
+.dossier-footer{
+  margin-top: 46px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--rule);
+  display:flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.back-link{
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-soft);
+  text-decoration:none;
+  display:inline-block;
+  margin-bottom: 16px;
+}
+.back-link:hover{ color: var(--ink); }
+
+.error-box{
+  background: var(--band-high-bg);
+  border-left: 4px solid var(--band-high);
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+@media (max-width: 560px){
+  .masthead h1{ font-size: 26px; }
+  .stamp{ font-size: 20px; padding: 8px 14px; }
+}

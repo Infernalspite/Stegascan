@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Case Index{% endblock %}
+{% block content %}
+
+<p style="max-width:640px; color:var(--ink-soft); font-size:14px; line-height:1.6;">
+  Select a model artifact below to run the full three-signal detection
+  engine against it &mdash; steganographic payload extraction, trigger-patch
+  backdoor search, and a supplementary weight-health check &mdash; and
+  get back a scored, evidence-backed case report.
+</p>
+
+<div class="section-label">Bundled evidence set (Phase 2 demo models)</div>
+<div class="model-grid">
+  {% for m in bundled %}
+  <a class="model-card" href="{{ url_for('report', source='bundled', filename=m.filename) }}">
+    <span class="tag-hole"></span>
+    <span class="fname">{{ m.filename }}</span>
+    <span class="label">{{ m.label }}</span>
+    <p class="desc">{{ m.desc }}</p>
+    <span class="meta">{{ m.size_kb }} KB &middot; .npz</span>
+    <span class="scan-cta">Run scan &rarr;</span>
+  </a>
+  {% endfor %}
+</div>
+
+<div class="section-label">Upload a model for analysis</div>
+<form class="upload-panel" action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+  <p>
+    Accepts a StegaScan-compatible <code>.npz</code> weight file (numpy-saved
+    <code>W0..Wn</code> / <code>b0..bn</code> tensors plus <code>layer_sizes</code>).
+    Nothing is sent off this machine &mdash; the scan runs entirely local and offline.
+  </p>
+  <input type="file" name="model_file" accept=".npz" required>
+  <button type="submit">Upload &amp; scan</button>
+</form>
+
+{% if uploaded %}
+<div class="section-label">Previously uploaded</div>
+<div class="model-grid">
+  {% for m in uploaded %}
+  <a class="model-card" href="{{ url_for('report', source='uploaded', filename=m.filename) }}">
+    <span class="tag-hole"></span>
+    <span class="fname">{{ m.filename }}</span>
+    <span class="label">{{ m.label }}</span>
+    <p class="desc">{{ m.desc }}</p>
+    <span class="meta">{{ m.size_kb }} KB &middot; .npz</span>
+    <span class="scan-cta">Run scan &rarr;</span>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="section-label">Scope</div>
+<div class="limits-box">
+  <strong>What this tool checks:</strong> contiguous LSB-substitution steganography
+  (bit-depths 1&ndash;8, every tensor) and corner-patch backdoor triggers (a bounded
+  36-combination grid), the two signals empirically validated in Phase 3.
+  <strong>What it does not certify:</strong> a LOW score means no known attack
+  pattern was found &mdash; not a guarantee of safety. Non-contiguous or
+  pre-encrypted payloads, and spatially distributed or learned triggers, are
+  documented gaps (see the report page for details on any given scan).
+</div>
+
+{% endblock %}

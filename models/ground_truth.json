@@ -1,0 +1,36 @@
+{
+  "clean_model_baseline_accuracy": 0.9722222222222222,
+  "stego_model": {
+    "attack_type": "steganography",
+    "target_layer": "W0",
+    "bit_depth": 2,
+    "payload_length_bytes": 279,
+    "payload_preview": "STEGASCAN_DEMO_PAYLOAD :: This text proves a hidden message ",
+    "post_embedding_test_accuracy": 0.9722222222222222
+  },
+  "backdoor_model": {
+    "attack_type": "backdoor",
+    "trigger_target_class": 0,
+    "trigger_patch_size": 2,
+    "trigger_corner": "bottom_right",
+    "poisoned_training_samples": 215,
+    "clean_test_accuracy": 0.9694444444444444,
+    "attack_success_rate": 0.9969135802469136
+  },
+  "stego_and_backdoor_model": {
+    "attack_type": "steganography+backdoor",
+    "steganography": {
+      "target_layer": "W0",
+      "bit_depth": 2,
+      "payload_length_bytes": 279
+    },
+    "backdoor": {
+      "trigger_target_class": 0,
+      "trigger_patch_size": 2,
+      "trigger_corner": "bottom_right",
+      "poisoned_training_samples": 215
+    },
+    "clean_test_accuracy": 0.9694444444444444,
+    "attack_success_rate": 0.9969135802469136
+  }
+}

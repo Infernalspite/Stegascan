@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Report — {{ filename }}{% endblock %}
+{% block content %}
+
+<a class="back-link" href="{{ url_for('index') }}">&larr; Back to case index</a>
+
+{% if error %}
+  <div class="error-box">
+    <strong>Scan failed for '{{ filename }}':</strong><br>
+    {{ error }}
+  </div>
+{% else %}
+
+<div class="report-head">
+  <div>
+    <h2>{{ display_label }}</h2>
+    <span class="fname">{{ filename }} &middot; {{ source }}</span>
+    <div class="report-meta">
+      <span>architecture: {{ result.layer_sizes|join(' &rarr; ') }}</span>
+      <span>parameters: {{ "{:,}".format(result.n_params) }}</span>
+      <span>calibration set: {{ result.calibration_n }} samples</span>
+      <span>scan time: {{ result.elapsed_ms }} ms</span>
+    </div>
+  </div>
+  <div class="stamp band-{{ result.risk.risk_band }}">
+    {{ result.risk.risk_band }}
+    <span class="score-line">{{ result.risk.risk_score }} / 100</span>
+  </div>
+</div>
+
+<div class="section-label">Evidence</div>
+<div class="tag-row">
+
+  <div class="evidence-tag">
+    <div class="tag-title">
+      Steganography <span>+{{ result.risk.contributions.steganography }}</span>
+    </div>
+    {% if result.stego.flagged %}
+      <span class="pill flagged">FLAGGED</span>
+    {% else %}
+      <span class="pill clear">CLEAR</span>
+    {% endif %}
+    <ul>
+      {% for r in result.stego.reasons %}<li>{{ r }}</li>{% endfor %}
+    </ul>
+    {% if result.stego.flagged %}
+    <div class="recovered">{{ result.stego.recovered_text }}<span class="cursor">&#9608;</span></div>
+    {% endif %}
+    {% if result.stego.all_hits %}
+    <table class="grid-table">
+      <tr><th>Tensor</th><th>Bit depth</th><th>Run length (bytes)</th></tr>
+      {% for tensor, depth, length in result.stego.all_hits[:5] %}
+      <tr><td>{{ tensor }}</td><td>{{ depth }}</td><td>{{ length }}</td></tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+  </div>
+
+  <div class="evidence-tag">
+    <div class="tag-title">
+      Backdoor <span>+{{ result.risk.contributions.backdoor }}</span>
+    </div>
+    {% if result.backdoor.flagged %}
+      <span class="pill flagged">FLAGGED</span>
+    {% else %}
+      <span class="pill clear">CLEAR</span>
+    {% endif %}
+    <ul>
+      {% for r in result.backdoor.reasons %}<li>{{ r }}</li>{% endfor %}
+    </ul>
+    <table class="grid-table">
+      <tr><th>Corner</th><th>Size</th><th>Value</th><th>Target class</th><th>Collapse</th></tr>
+      {% for g in result.backdoor.grid_summary %}
+      <tr>
+        <td>{{ g.corner }}</td>
+        <td>{{ g.patch_size }}x{{ g.patch_size }}</td>
+        <td>{{ g.patch_value }}</td>
+        <td>{{ g.target_class }}</td>
+        <td>{{ "%.1f"|format(g.collapse_fraction * 100) }}%</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  <div class="evidence-tag">
+    <div class="tag-title">
+      Weight health <span>+{{ result.risk.contributions.weight_health }}</span>
+    </div>
+    {% if result.health.flagged %}
+      <span class="pill low-confidence">LOW-CONFIDENCE FLAG</span>
+    {% else %}
+      <span class="pill clear">CLEAR</span>
+    {% endif %}
+    <ul>
+      {% for r in result.health.reasons %}<li>{{ r }}</li>{% endfor %}
+    </ul>
+    <table class="grid-table">
+      <tr><th>Tensor</th><th>Excess kurtosis</th></tr>
+      {% for tensor, k in result.health.per_tensor.items() %}
+      <tr><td>{{ tensor }}</td><td>{{ "%.3f"|format(k) }}</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+
+</div>
+
+<div class="section-label">Reading this report</div>
+<div class="limits-box">
+  A LOW score means no known attack pattern was found in this scan &mdash; not a
+  certification of safety. The steganography check is tuned to contiguous
+  LSB substitution; a non-contiguous or pre-encrypted payload would not
+  produce a printable run and would evade it. The backdoor check searches a
+  bounded corner-patch grid (up to 3&times;3); a spatially distributed or
+  learned trigger could evade it. The weight-health check is explicitly
+  low-confidence supplementary evidence and never decides a verdict alone.
+</div>
+
+{% endif %}
+{% endblock %}
